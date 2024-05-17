@@ -1,0 +1,21 @@
+body {
+    color: #fffff2;
+}
+
+nav {
+    background-color: #1b1e21;   
+    border-bottom: medium solid maroon;
+}
+
+
+.test {
+    background-color: maroon;
+}
+
+.test-2 {
+    background-color: blueviolet;
+}
+
+.test-3 {
+    background-color: darkcyan;
+}
