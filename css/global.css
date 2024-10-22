@@ -1,21 +1,21 @@
+@font-face {
+    font-family: 'Monocode';
+    src: url('../fonts/Monocode-Regular-V01.02b.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
     color: #fffff2;
+    background-color: #000000;
+    font-family: 'Monocode', monospace;
+}
+
+footer {
+    font-family: 'Source Code Pro', monospace;
 }
 
 nav {
     background-color: #1b1e21;   
     border-bottom: medium solid maroon;
-}
-
-
-.test {
-    background-color: maroon;
-}
-
-.test-2 {
-    background-color: blueviolet;
-}
-
-.test-3 {
-    background-color: darkcyan;
 }
