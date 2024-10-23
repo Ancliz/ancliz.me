@@ -17,32 +17,10 @@
 </head>
 
 <body class="flex flex-col justify-between min-h-screen text-center">
+    <canvas id="particleCanvas"></canvas>
 
-    <main class="flex-grow flex flex-col items-center justify-center space-y-4">
-        <a href="https://github.com/Ancliz" 
-            target="_blank"
-            class="flex items-center py-2 px-4 rounded-lg transition duration-300
-                    transform hover:text-white hover:scale-105
-                    text-gray-300 text-4xl font-bold">
-            <img src="../ico/github-mark-white.png" alt="GitHub" class="h-8 w-8 mr-4"/>
-            ancliz
-        </a>
-        <a href="https://x.com/AncliziL"
-            target="_blank"
-            class="flex items-center py-2 px-4 rounded-lg transition duration-300
-                    transform hover:text-white hover:scale-105
-                    text-gray-300 text-4xl font-bold">
-            <img src="../ico/x-logo-white.png" class="h-8 w-8 mr-4"/>
-            anclizil 
-        </a>
-        <a href="https://bsky.app/profile/ancliz.bsky.social"
-            target="_blank"
-            class="flex items-center py-2 px-4 rounded-lg transition duration-300
-                    transform hover:text-white hover:scale-105
-                    text-gray-300 text-4xl font-bold">
-            <img src="../ico/bluesky-social.png" alt="bluesky" class="h-8 w-8 mr-4"/>
-            ancliz
-        </a>
+    <main id="my-links" class="flex-grow flex flex-col items-center justify-center space-y-4">
+        <script src="../js/mylinks.js"></script>
     </main>
 
     <footer class="mt-8 text-gray-400">
@@ -50,4 +28,5 @@
     </footer>
 
 </body>
+<script src="../js/particle-background.js"></script>
 </html>
