@@ -1,3 +1,5 @@
+"use strict"
+
 class Entry {
     constructor(url, icon, alt, text) {
         this.url = url;

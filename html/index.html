@@ -14,13 +14,14 @@
 
     <link href="../css/global.css" rel="stylesheet">
     <link href="../css/home-styles.css" rel="stylesheet">
+
 </head>
 
 <body class="flex flex-col justify-between min-h-screen text-center">
     <canvas id="particleCanvas"></canvas>
 
     <main id="my-links" class="flex-grow flex flex-col items-center justify-center space-y-4">
-        <script src="../js/mylinks.js"></script>
+        <script type="module" src="../js/mylinks.js"></script>
     </main>
 
     <footer class="mt-8 text-gray-400">
@@ -28,5 +29,8 @@
     </footer>
 
 </body>
-<script src="../js/particle-background.js"></script>
+
+<script type="module" src="../js/exceptions.js"></script>
+<script type="module" src="../js/Vec2d.js"></script>
+<script type="module" src="../js/particle-background.js"></script>
 </html>
