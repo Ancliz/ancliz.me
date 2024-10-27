@@ -34,6 +34,8 @@ class Particle {
         this.coords.x += dt * direction.x * this.speedX;
         
         if(this.coords.y > canvas.height) {
+            this.speedY = this.initialSpeedY;
+            this.speedX = 0;
             this.coords.y = 0;
             this.coords.x = Math.random() * canvas.width;
         }
