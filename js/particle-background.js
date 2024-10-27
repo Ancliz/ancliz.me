@@ -9,9 +9,13 @@ const canvas = document.getElementById("particleCanvas");
 const ctx = canvas.getContext("2d");
 
 let lastTime = document.timeline.currentTime;
+let mousePressed = false;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+let mouseX;
+let mouseY;
 
 let particles = []
 
@@ -71,7 +75,11 @@ function update(t) {
     lastTime = t;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     Debug.debugParticle(particles[0]);
-    
+
+    if(mousePressed) {
+        impact();
+    } 
+
     particles.forEach(particle => {
         particle.update(dt);
         particle.draw();
@@ -115,10 +123,10 @@ function updateDirection(direction, target) {
 
 }
 
-document.addEventListener("click", event => {
+function impact() {
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = mouseX - rect.left;
+    const y = mouseY - rect.top;
 
     particles.forEach(particle => {
         const dispVec = Vec2d.displacement(new Vec2d(x,y), particle.coords.toVec2d());
@@ -129,6 +137,33 @@ document.addEventListener("click", event => {
             particle.speedY = Config.BURST_SPEED_Y;
         }
     });
+}
+
+function updateMousePos(pos) {
+    mouseX = pos.clientX;
+    mouseY = pos.clientY;
+}
+
+document.addEventListener("mousedown", event => {
+    mousePressed = true;
+    document.addEventListener("mousemove", updateMousePos);
+});
+
+document.addEventListener("mouseup", event => {
+    mousePressed = false;
+    document.removeEventListener("mousemove", updateMousePos);
+});
+
+document.addEventListener("touchstart", event => {
+    mousePressed = true;
+    updateMousePos(event.touches[0]);
+    document.addEventListener("touchmove", (event) => updateMousePos(event.touches[0]));
+});
+
+document.addEventListener("touchend", event => {
+    mousePressed = false;
+    impact();
+    document.removeEventListener("touchmove", (event) => updateMousePos(event.touches[0]));
 });
 
 document.addEventListener("DOMContentLoaded", () => {
