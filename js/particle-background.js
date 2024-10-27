@@ -38,13 +38,19 @@ class Particle {
         updateDirection(direction, Vec2d.Y_UNIT_VECTOR.coords);
         this.coords.y += dt * direction.y * this.speedY;
         this.coords.x += dt * direction.x * this.speedX;
+
+        const outOfBounds = this.coords.y > canvas.height || (this.coords.x < 0 || this.coords.x > canvas.width);
         
-        if(this.coords.y > canvas.height) {
-            this.speedY = this.initialSpeedY;
-            this.speedX = 0;
-            this.coords.y = 0;
-            this.coords.x = Math.random() * canvas.width;
+        if(outOfBounds) {
+            this.reset();
         }
+    }
+
+    reset() {
+        this.speedY = this.initialSpeedY;
+        this.speedX = 0;
+        this.coords.y = 0;
+        this.coords.x = Math.random() * canvas.width;
     }
 
     draw() {
@@ -78,7 +84,7 @@ function update(t) {
     lastTime = t;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     Debug.debugParticle(particles[0]);
-    Debug.debugResize({ "width": canvas.width, "totalParticles": totalParticles, "impactRadius: ": impactRadius });
+    Debug.debugResize({ "width": canvas.width, "totalParticles": totalParticles, "impactRadius": impactRadius });
 
     if(mousePressed) {
         impact();
