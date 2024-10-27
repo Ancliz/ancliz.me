@@ -1,12 +1,19 @@
 export default class Debug {
-    static BITMASK = (1 << 2) - 1;
+    static BITMASK = (1 << 3) - 1;
     static PARTICLE_DEBUG = 1 << 0;
     static MOUSE_DEBUG = 1 << 1;
+    static RESIZE_DEBUG = 1 << 2; 
 
     #setupParticle(overlay) {
         const particleDiv = document.createElement("div");
         particleDiv.id = "debug-overlay-particle";
         overlay.appendChild(particleDiv);
+    }
+
+    #setupResize(overlay) {
+        const resizeDiv = document.createElement("div");
+        resizeDiv.id = "debug-overlay-resize";
+        overlay.appendChild(resizeDiv);
     }
 
     #setupMouse(overlay) {
@@ -39,6 +46,7 @@ export default class Debug {
             const methods = new Map();
             methods.set(1, this.#setupParticle);
             methods.set(2, this.#setupMouse);
+            methods.set(4, this.#setupResize);
 
             flags &= Debug.BITMASK;
 
@@ -51,6 +59,18 @@ export default class Debug {
             }
                         
             document.body.appendChild(overlay);
+        }
+    }
+
+    static debugResize(map) {
+        const overlay = document.getElementById("debug-overlay-resize");
+        if(overlay) {
+            overlay.innerHTML = `
+                <h4>Resize</h4>
+                <p>Width: ${map.width}</p>
+                <p>Particles: ${map.totalParticles}</p>
+                <p>Impact Radius: ${map.impactRadius}</p>
+            `;
         }
     }
     

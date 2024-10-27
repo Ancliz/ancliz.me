@@ -17,7 +17,9 @@ canvas.height = window.innerHeight;
 let mouseX;
 let mouseY;
 
-let particles = []
+let particles = [];
+let totalParticles;
+let impactRadius = Config.IMPACT_RADIUS;
 
 class Particle {
     constructor(x, y) {
@@ -58,7 +60,8 @@ class Particle {
 }
 
 function init() {
-    for(let i = 0; i < Config.NO_OF_PARTICLES_1920; ++i) {
+    configure();
+    for(let i = 0; i < totalParticles; ++i) {
         particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
     }
 }
@@ -75,6 +78,7 @@ function update(t) {
     lastTime = t;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     Debug.debugParticle(particles[0]);
+    Debug.debugResize({ "width": canvas.width, "totalParticles": totalParticles, "impactRadius: ": impactRadius });
 
     if(mousePressed) {
         impact();
@@ -88,9 +92,23 @@ function update(t) {
     requestAnimationFrame(update);
 }
 
+function configure() {
+    if(canvas.width >= Config.RES_1920) {
+        totalParticles = Config.NO_OF_PARTICLES_1920;
+        impactRadius = Config.IMPACT_RADIUS;
+    } else if(canvas.width >= Config.RES_820) {
+        totalParticles = Config.NO_OF_PARTICLES_820;
+        impactRadius = Config.IMPACT_RADIUS;
+    } else {
+        totalParticles = Config.NO_OF_PARTICLES_430;
+        impactRadius = 30;
+    }
+}
+
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    configure(canvas.width);
     particles = []
     init();
 });
@@ -131,7 +149,7 @@ function impact() {
     particles.forEach(particle => {
         const dispVec = Vec2d.displacement(new Vec2d(x,y), particle.coords.toVec2d());
     
-        if(dispVec.magnitude <= Config.IMPACT_RADIUS) {
+        if(dispVec.magnitude <= impactRadius) {
             particle.direction = dispVec.getUnitVec();
             particle.speedX = Config.BURST_SPEED_X;
             particle.speedY = Config.BURST_SPEED_Y;
@@ -167,7 +185,7 @@ document.addEventListener("touchend", event => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    new Debug();
+    new Debug(Debug.RESIZE_DEBUG);
  });
 
 init();
