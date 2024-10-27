@@ -2,6 +2,7 @@
 
 import { Point, Vec2d } from "./Vec2d.js";
 import { rand } from "./util.js";
+import Debug from "./debug.js";
 
 const canvas = document.getElementById("particleCanvas");
 const ctx = canvas.getContext("2d");
@@ -75,6 +76,7 @@ function update(t) {
     const dt = (t - lastTime);
     lastTime = t;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    Debug.debugParticle(particles[0]);
     particles.forEach(particle => {
         particle.update(dt);
         particle.draw();
@@ -118,7 +120,7 @@ function updateDirection(direction, target) {
 
 }
 
-canvas.addEventListener("click", event => {
+document.addEventListener("click", event => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -133,6 +135,10 @@ canvas.addEventListener("click", event => {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    new Debug();
+ });
 
 init();
 requestAnimationFrame(update);
