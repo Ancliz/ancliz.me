@@ -191,7 +191,7 @@ document.addEventListener("touchend", event => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    new Debug(Debug.RESIZE_DEBUG);
+    new Debug();
  });
 
 init();
