@@ -2,39 +2,31 @@
 
 import { Point, Vec2d } from "./Vec2d.js";
 import { rand } from "./util.js";
+import Config from "./background-config.js";
+import Debug from "./debug.js";
 
 const canvas = document.getElementById("particleCanvas");
 const ctx = canvas.getContext("2d");
 
-const NO_OF_PARTICLES = 2500;
-const MIN_PARTICLE_SIZE = 0.5;
-const MAX_PARTICLE_SIZE = 1;
-const PARTICLE_INIT_SPEED_Y_MIN = 0.005;
-const PARTICLE_INIT_SPEED_Y_MAX = 0.02;
-
-// interactive
-const IMPACT_RADIUS = 50;
-const BURST_SPEED_X = 0.2;
-const BURST_SPEED_Y = 0.2;
-const X_DECELARATION = 0.99;
-const Y_DECELARATION = 0.99;
-const X_TOLERANCE = 0.00001;
-const Y_TOLERANCE = 0.00001;
-const INTERPOLATION_FACTOR = 0.01;
-
 let lastTime = document.timeline.currentTime;
+let mousePressed = false;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let particles = []
+let mouseX;
+let mouseY;
+
+let particles = [];
+let totalParticles;
+let impactRadius = Config.IMPACT_RADIUS;
 
 class Particle {
     constructor(x, y) {
         this.coords = new Point(x,y);
         this.direction = new Vec2d(Vec2d.Y_UNIT_VECTOR);
-        this.size = rand(MIN_PARTICLE_SIZE, MAX_PARTICLE_SIZE);
-        this.initialSpeedY = rand(PARTICLE_INIT_SPEED_Y_MIN, PARTICLE_INIT_SPEED_Y_MAX);
+        this.size = rand(Config.MIN_PARTICLE_SIZE, Config.MAX_PARTICLE_SIZE);
+        this.initialSpeedY = rand(Config.PARTICLE_INIT_SPEED_Y_MIN, Config.PARTICLE_INIT_SPEED_Y_MAX);
         this.speedY = this.initialSpeedY;
         this.speedX = 0;
         this.color = "rgba(255, 255, 255, 0.7)";
@@ -46,11 +38,19 @@ class Particle {
         updateDirection(direction, Vec2d.Y_UNIT_VECTOR.coords);
         this.coords.y += dt * direction.y * this.speedY;
         this.coords.x += dt * direction.x * this.speedX;
+
+        const outOfBounds = this.coords.y > canvas.height || (this.coords.x < 0 || this.coords.x > canvas.width);
         
-        if(this.coords.y > canvas.height) {
-            this.coords.y = 0;
-            this.coords.x = Math.random() * canvas.width;
+        if(outOfBounds) {
+            this.reset();
         }
+    }
+
+    reset() {
+        this.speedY = this.initialSpeedY;
+        this.speedX = 0;
+        this.coords.y = 0;
+        this.coords.x = Math.random() * canvas.width;
     }
 
     draw() {
@@ -66,15 +66,30 @@ class Particle {
 }
 
 function init() {
-    for(let i = 0; i < NO_OF_PARTICLES; ++i) {
+    configure();
+    for(let i = 0; i < totalParticles; ++i) {
         particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
     }
 }
 
 function update(t) {
-    const dt = (t - lastTime);
+    let dt = (t - lastTime);
+
+    // handle refocus behaviour
+    // if dt will in a large animation jump, set dt = 0 for no change
+    if(dt >= Config.DT_THRESHOLD_MILLIS) {
+         dt = 0;
+    }
+
     lastTime = t;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    Debug.debugParticle(particles[0]);
+    Debug.debugResize({ "width": canvas.width, "totalParticles": totalParticles, "impactRadius": impactRadius });
+
+    if(mousePressed) {
+        impact();
+    } 
+
     particles.forEach(particle => {
         particle.update(dt);
         particle.draw();
@@ -83,24 +98,38 @@ function update(t) {
     requestAnimationFrame(update);
 }
 
+function configure() {
+    if(canvas.width >= Config.RES_1920) {
+        totalParticles = Config.NO_OF_PARTICLES_1920;
+        impactRadius = Config.IMPACT_RADIUS;
+    } else if(canvas.width >= Config.RES_820) {
+        totalParticles = Config.NO_OF_PARTICLES_820;
+        impactRadius = Config.IMPACT_RADIUS;
+    } else {
+        totalParticles = Config.NO_OF_PARTICLES_430;
+        impactRadius = 30;
+    }
+}
+
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    configure(canvas.width);
     particles = []
     init();
 });
 
 function updateSpeed(particle) {
     if(particle.speedX > 0) {
-        particle.speedX *= X_DECELARATION;
-        if(particle.speedX <= X_TOLERANCE) {
+        particle.speedX *= Config.X_DECELARATION;
+        if(particle.speedX <= Config.X_TOLERANCE) {
             particle.speedX = 0;
         }
     }
 
     if(particle.speedY > particle.initialSpeedY) {
-        particle.speedY *= Y_DECELARATION;
-        if(particle.speedY - particle.initialSpeedY <= Y_TOLERANCE) {
+        particle.speedY *= Config.Y_DECELARATION;
+        if(particle.speedY - particle.initialSpeedY <= Config.Y_TOLERANCE) {
             particle.speedY = particle.initialSpeedY;
         }
     }
@@ -109,30 +138,61 @@ function updateSpeed(particle) {
 
 function updateDirection(direction, target) {
     if(direction.x != target.x) {
-        direction.x += (target.x - direction.x) * INTERPOLATION_FACTOR;
+        direction.x += (target.x - direction.x) * Config.INTERPOLATION_FACTOR;
     }
 
     if(direction.y != target.y) {
-        direction.y += (target.y - direction.y) * INTERPOLATION_FACTOR;
+        direction.y += (target.y - direction.y) * Config.INTERPOLATION_FACTOR;
     }
 
 }
 
-canvas.addEventListener("click", event => {
+function impact() {
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = mouseX - rect.left;
+    const y = mouseY - rect.top;
 
     particles.forEach(particle => {
         const dispVec = Vec2d.displacement(new Vec2d(x,y), particle.coords.toVec2d());
     
-        if(dispVec.magnitude <= IMPACT_RADIUS) {
+        if(dispVec.magnitude <= impactRadius) {
             particle.direction = dispVec.getUnitVec();
-            particle.speedX = BURST_SPEED_X;
-            particle.speedY = BURST_SPEED_Y;
+            particle.speedX = Config.BURST_SPEED_X;
+            particle.speedY = Config.BURST_SPEED_Y;
         }
     });
+}
+
+function updateMousePos(pos) {
+    mouseX = pos.clientX;
+    mouseY = pos.clientY;
+}
+
+document.addEventListener("mousedown", event => {
+    mousePressed = true;
+    document.addEventListener("mousemove", updateMousePos);
 });
+
+document.addEventListener("mouseup", event => {
+    mousePressed = false;
+    document.removeEventListener("mousemove", updateMousePos);
+});
+
+document.addEventListener("touchstart", event => {
+    mousePressed = true;
+    updateMousePos(event.touches[0]);
+    document.addEventListener("touchmove", (event) => updateMousePos(event.touches[0]));
+});
+
+document.addEventListener("touchend", event => {
+    mousePressed = false;
+    impact();
+    document.removeEventListener("touchmove", (event) => updateMousePos(event.touches[0]));
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    new Debug();
+ });
 
 init();
 requestAnimationFrame(update);
