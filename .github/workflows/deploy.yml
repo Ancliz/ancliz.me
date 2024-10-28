@@ -18,6 +18,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      PROJECT_ARTIFACT: me-ancliz-website
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,22 +31,41 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
           echo "TAG=${TAG}" >> $GITHUB_OUTPUT
           echo "TAG_REPLACED=${TAG//./_}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG}" >> $GITHUB_ENV
+          echo "VERSION_REPLACED=${TAG//./_}" >> $GITHUB_ENV
 
       - name: Zip
         run: |
-          zip -r me-ancliz-${{steps.set_tag.outputs.TAG_REPLACED}}.zip . -x ".*" -x "target/"
+          zip -r "${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip" . -x ".*" -x "target/"
+          echo v $VERSION_REPLACED
+          echo artifact $PROJECT_ARTIFACT
+          ls
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: me-ancliz-website${{ steps.set_tag.outputs.TAG_REPLACED }}
-          path: me-ancliz-website${{ steps.set_tag.outputs.TAG_REPLACED }}.zip
+          name: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}
+          path: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip
     
-      - name: SSH to Server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: SCP zip to server
+        uses: appleboy/scp-action@v0.1.7
+        env:
+          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.HOST_PRIVATE_KEY }}
-          script: ./deploy
+          source: ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
+          target: "/home/${{ secrets.HOST }}/versions/${{ env.VERSION }}"
+      
+      - name: SSH and run deploy
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.HOST_PRIVATE_KEY }}
+          script: ./deploy -f ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
