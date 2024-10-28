@@ -170,6 +170,7 @@ function updateMousePos(pos) {
 
 document.addEventListener("mousedown", event => {
     mousePressed = true;
+    updateMousePos(event);
     document.addEventListener("mousemove", updateMousePos);
 });
 
