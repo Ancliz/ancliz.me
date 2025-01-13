@@ -1,0 +1,26 @@
+[
+    {
+      "url": "https://github.com/Ancliz",
+      "icon_src": "../ico/github-mark-white.png",
+      "platform": "GitHub",
+      "handle": "ancliz"
+    },
+    {
+      "url": "https://bsky.app/profile/ancliz.bsky.social",
+      "icon_src": "../ico/bluesky-social.png",
+      "platform": "Bluesky",
+      "handle": "ancliz"
+    },
+    {
+      "url": "https://www.youtube.com/@Ancliz",
+      "icon_src": "../ico/youtube-2.png",
+      "platform": "Youtube",
+      "handle": "ancliz"
+    },
+    {
+      "url": "https://x.com/AncliziL",
+      "icon_src": "../ico/x-logo-white.png",
+      "platform": "X (Twitter)",
+      "handle": "anclizil"
+    }
+]

@@ -1,5 +1,7 @@
 "use strict"
 
+import { RequestBuilder } from "./requests-util.js";
+
 class Entry {
     constructor(url, icon, alt, text) {
         this.url = url;
@@ -9,13 +11,19 @@ class Entry {
     }
 }
 
-function createLinks() {
-    const entries = [
-        new Entry("https://github.com/Ancliz", "../ico/github-mark-white.png", "GitHub", "ancliz"),
-        new Entry("https://bsky.app/profile/ancliz.bsky.social", "../ico/bluesky-social.png", "Bluesky", "ancliz"),
-        new Entry("https://www.youtube.com/@Ancliz", "../ico/youtube-2.png", "Youtube", "ancliz"),
-        new Entry("https://x.com/AncliziL", "../ico/x-logo-white.png", "X (Twitter)", "anclizil")
-    ]
+async function getLinks(sourceUrl) {
+    const request = new RequestBuilder().url(sourceUrl).build();
+    const response = await request();
+    const subject = await response.json();
+
+    return subject.map(subjectData =>
+        new Entry(subjectData.url, subjectData.icon_src, subjectData.platform, subjectData.handle)
+    );
+}
+
+async function createLinks(source) {
+
+    const entries = await getLinks(source);
 
     const element = document.getElementById("my-links");
     const fragment = document.createDocumentFragment();
@@ -43,5 +51,6 @@ function createLinks() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-   createLinks();
+	// When backend implemented, will be set to endpoint
+	createLinks("../links.json");
 });
