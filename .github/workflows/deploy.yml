@@ -29,28 +29,20 @@ jobs:
         id: set_tag
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
-          echo "TAG_REPLACED=${TAG//./_}" >> $GITHUB_OUTPUT
           echo "VERSION=${TAG}" >> $GITHUB_ENV
-          echo "VERSION_REPLACED=${TAG//./_}" >> $GITHUB_ENV
+          echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Zip
         run: |
-          zip -r "${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip" . -x ".*" -x "target/"
-          echo v $VERSION_REPLACED
+          zip -r "${{ env.PROJECT_ARTIFACT }}-$VERSION.zip" . -x ".*" -x "target/"
+          echo v $VERSION
           echo artifact $PROJECT_ARTIFACT
           ls
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}
-          path: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip
-    
       - name: SCP zip to server
         uses: appleboy/scp-action@v0.1.7
         env:
-          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
+          VERSION: ${{ steps.set_tag.outputs.VERSION }}
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
