@@ -1,6 +1,6 @@
 "use strict"
 
-import { Point, Vec2d } from "./Vec2d.js";
+import { Point, Vec2d } from "./vec2d.js";
 import { rand } from "./util.js";
 import Config from "./background-config.js";
 import Debug from "./debug.js";
