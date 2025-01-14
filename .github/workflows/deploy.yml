@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ARTIFACT: me-ancliz-website
+      PROJECT_ARTIFACT: me-ancliz
 
     steps:
       - name: Checkout
