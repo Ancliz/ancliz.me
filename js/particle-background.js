@@ -195,5 +195,10 @@ document.addEventListener("DOMContentLoaded", () => {
     new Debug();
  });
 
+document.addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+});
+
+
 init();
 requestAnimationFrame(update);

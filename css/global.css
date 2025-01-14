@@ -28,3 +28,7 @@ nav {
     background-color: #1b1e21;   
     border-bottom: medium solid maroon;
 }
+
+a {
+    user-select: none;
+}

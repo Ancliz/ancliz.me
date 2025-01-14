@@ -49,12 +49,12 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.HOST_PRIVATE_KEY }}
           source: ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
-          target: "/home/${{ secrets.HOST }}/versions/${{ env.VERSION }}"
+          target: "/home/${{ secrets.USER }}/versions/"
       
       - name: SSH and run deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
-          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
+          VERSION: ${{ steps.set_tag.outputs.VERSION }}
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}

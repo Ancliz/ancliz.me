@@ -2,6 +2,7 @@
     padding: 5%;
     display: flex;
     flex-wrap: nowrap; 
+}
 
 .showcase-item {
     margin-right: 20px;
