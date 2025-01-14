@@ -12,6 +12,6 @@ export function finalise(obj) {
     });
 }
 
-export function rand(max, min) {
+export function rand(min, max) {
     return Math.random() * (max - min) + min;
 }
