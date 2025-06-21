@@ -1,22 +1,33 @@
 "use strict"
 
+import RequestBuilder, { HttpStatus } from "./requests-util.js";
+
 class Entry {
-    constructor(url, icon, alt, text) {
-        this.url = url;
-        this.icon = icon;
-        this.alt = alt;
-        this.text = text;
+    constructor(obj) {
+        this.url = obj.url;
+        this.icon = obj.icon;
+        this.alt = obj.platform;
+        this.text = obj.username;
     }
 }
 
-function createLinks() {
-    const entries = [
-        new Entry("https://github.com/Ancliz", "../ico/github-mark-white.png", "GitHub", "ancliz"),
-        new Entry("https://bsky.app/profile/ancliz.bsky.social", "../ico/bluesky-social.png", "Bluesky", "ancliz"),
-        new Entry("https://www.youtube.com/@Ancliz", "../ico/youtube-2.png", "Youtube", "ancliz"),
-        new Entry("https://x.com/AncliziL", "../ico/x-logo-white.png", "X (Twitter)", "anclizil")
-    ]
+async function getLinks() {
+    const request = new RequestBuilder()
+        .url("https://www.ancliz.me:25666/public/mylinks.json")
+        .build();
+    const response = await request();
+    if(response.status === HttpStatus.OK) {
+        return response.json().then(data => {
+            return data.map(item => new Entry(item));
+        });
+    } else {
+        console.error((await response.json()).message);
+    }
+    return undefined;
+}
 
+async function createLinks() {
+    const entries = await getLinks();
     const element = document.getElementById("my-links");
     const fragment = document.createDocumentFragment();
 

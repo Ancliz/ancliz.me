@@ -30,42 +30,50 @@ jobs:
         run: |
           TAG=${GITHUB_REF#refs/tags/}
           echo "TAG=${TAG}" >> $GITHUB_OUTPUT
-          echo "TAG_REPLACED=${TAG//./_}" >> $GITHUB_OUTPUT
           echo "VERSION=${TAG}" >> $GITHUB_ENV
-          echo "VERSION_REPLACED=${TAG//./_}" >> $GITHUB_ENV
 
       - name: Zip
         run: |
-          zip -r "${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip" . -x ".*" -x "target/"
-          echo v $VERSION_REPLACED
+          zip -r "${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG}}.zip" . -x ".*" -x "target/"
+          echo v $VERSION
           echo artifact $PROJECT_ARTIFACT
           ls
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}
-          path: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG_REPLACED}}.zip
+          name: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG}}
+          path: ${{ env.PROJECT_ARTIFACT }}-${{steps.set_tag.outputs.TAG}}.zip
     
-      - name: SCP zip to server
-        uses: appleboy/scp-action@v0.1.7
+      - name: Get artifact download URL
         env:
-          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.PORT }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.HOST_PRIVATE_KEY }}
-          source: ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
-          target: "/home/${{ secrets.HOST }}/versions/${{ env.VERSION }}"
-      
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_KEY}}    
+          ARTIFACT_NAME: ${{ env.PROJECT_ARTIFACT }}-${{ steps.set_tag.outputs.TAG }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          ARTIFACT_ID=$(curl -s -H "Authorization: token $DEPLOY_TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/artifacts" | \
+            jq -r ".artifacts[] | select(.name==\"$ARTIFACT_NAME\") | .id")
+
+          if [[ -z "$ARTIFACT_ID" ]]; then
+            echo "Artifact not found"
+            exit 1
+          fi
+
+          DOWNLOAD_URL="https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACT_ID/zip"
+          echo "📦 Artifact download URL:"
+          echo "$DOWNLOAD_URL"
+
       - name: SSH and run deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
-          VERSION: ${{ steps.set_tag.outputs.TAG_REPLACED }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.set_tag.outputs.TAG }}
+          RUN_ID: ${{ github.run_id }}
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.HOST_PRIVATE_KEY }}
-          script: ./deploy -f ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
+          script: ./deploy.sh ${{ env.REPO }} ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }} ${{ env.RUN_ID }}
