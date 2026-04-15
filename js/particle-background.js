@@ -1,7 +1,7 @@
 "use strict"
 
 import { Point, Vec2d } from "./Vec2d.js";
-import { rand } from "./util.js";
+import { rand } from "https://www.ancliz.me:25666/public/ankyjs/0.0.1/library.esm.js";
 import Config from "./background-config.js" with { type: 'json' };
 import Debug from "./debug.js";
 

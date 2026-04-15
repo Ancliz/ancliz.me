@@ -1,6 +1,6 @@
 "use strict"
 
-import RequestBuilder, { httpException, HttpStatus } from "./requests-util.js";
+import { RequestBuilder, httpException, HttpStatus } from "https://www.ancliz.me:25666/public/ankyjs/0.0.1/library.esm.js";
 
 class Entry {
     constructor(obj) {
