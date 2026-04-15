@@ -30,18 +30,18 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
           echo "VERSION=${TAG}" >> $GITHUB_ENV
 
-      - name: Zip
-        run: |
-          zip -r "${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip" . -x ".*" -x "target/"
-          echo v $VERSION
-          echo artifact $PROJECT_ARTIFACT
-          ls
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}
-          path: ${{ env.PROJECT_ARTIFACT }}-${{ env.VERSION }}.zip
+          path: |
+            index.html
+            css/
+            fonts/
+            ico/
+            img/
+            js/
+          compression-level: 0
     
       - name: Get artifact download URL
         env:
