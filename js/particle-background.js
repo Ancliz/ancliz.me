@@ -2,7 +2,7 @@
 
 import { Point, Vec2d } from "./Vec2d.js";
 import { rand } from "./util.js";
-import Config from "./background-config.js";
+import Config from "./background-config.js" with { type: 'json' };
 import Debug from "./debug.js";
 
 const canvas = document.getElementById("particleCanvas");
