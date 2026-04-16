@@ -1,7 +1,7 @@
 "use strict"
 
 import { InvalidArgument } from "./exceptions.js";
-import { finalise } from "./util.js";
+import { finalise } from "https://www.ancliz.me:25666/public/ankyjs/0.0.1/library.esm.js";
 
 function coordinateArgs(arg1, arg2) {
     return typeof arg1 === "number" && typeof arg2 === "number";

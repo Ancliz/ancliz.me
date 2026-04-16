@@ -1,0 +1,27 @@
+{
+    /**
+     * Maximum time between frames before delta time is set to zero for no change in animation
+     */
+    "DT_THRESHOLD_MILLIS": 500,
+    "NO_OF_PARTICLES_1920": 6000,
+    "NO_OF_PARTICLES_820": 4000,
+    "NO_OF_PARTICLES_430": 2500,
+    "MIN_PARTICLE_SIZE": 0.5,
+    "MAX_PARTICLE_SIZE": 1,
+    "PARTICLE_INIT_SPEED_Y_MIN": 0.005,
+    "PARTICLE_INIT_SPEED_Y_MAX": 0.02,
+    
+    // interactive
+    "IMPACT_RADIUS": 40,
+    "BURST_SPEED_X": 0.2,
+    "BURST_SPEED_Y": 0.2,
+    "X_DECELARATION": 0.99,
+    "Y_DECELARATION": 0.99,
+    "X_TOLERANCE": 0.00001,
+    "Y_TOLERANCE": 0.00001,
+    "INTERPOLATION_FACTOR": 0.01,
+
+    "RES_1920": 1920,
+    "RES_820": 820,
+    "RES_430": 430
+}
