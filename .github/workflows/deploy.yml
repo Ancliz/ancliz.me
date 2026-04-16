@@ -30,6 +30,14 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
           echo "VERSION=${TAG}" >> $GITHUB_ENV
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Generate JSON from JSONC
+        run: deno run --allow-read --allow-write scripts/jsonc-to-json.js
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,6 +49,7 @@ jobs:
             ico/
             img/
             js/
+            !js/*.jsonc
           compression-level: 0
     
       - name: Get artifact download URL
